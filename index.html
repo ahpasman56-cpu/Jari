@@ -58,7 +58,7 @@
       renderPages();
     });
 
-   function renderPage(num, canvas, ctx) {
+ function renderPage(num, canvas, ctx) {
   pdfDoc.getPage(num).then(page => {
     const desiredWidth = canvas.width; // breedte van het canvas
     const viewport = page.getViewport({ scale: 1 }); // originele schaal
@@ -78,6 +78,8 @@
 
 }
 
+}
+
 
     function renderPage(num, canvas, ctx) {
       pdfDoc.getPage(num).then(page => {
@@ -93,7 +95,20 @@
       });
     }
 
-  function nextPages() {
+ function renderPages() {
+  if (currentPage === 1) {
+    renderPage(1, canvas1, ctx1);
+    ctx2.clearRect(0, 0, canvas2.width, canvas2.height); // leeg canvas rechts
+  } else {
+    renderPage(currentPage, canvas1, ctx1);
+    if (currentPage + 1 <= pdfDoc.numPages) {
+      renderPage(currentPage + 1, canvas2, ctx2);
+    } else {
+      ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+    }
+  }
+}
+function nextPages() {
   if (currentPage === 1) {
     currentPage = 2;
   } else if (currentPage + 2 <= pdfDoc.numPages) {
