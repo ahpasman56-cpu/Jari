@@ -58,14 +58,26 @@
       renderPages();
     });
 
-    function renderPages() {
-      renderPage(currentPage, canvas1, ctx1);
-      if (currentPage + 1 <= pdfDoc.numPages) {
-        renderPage(currentPage + 1, canvas2, ctx2);
-      } else {
-        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
-      }
-    }
+   function renderPage(num, canvas, ctx) {
+  pdfDoc.getPage(num).then(page => {
+    const desiredWidth = canvas.width; // breedte van het canvas
+    const viewport = page.getViewport({ scale: 1 }); // originele schaal
+    const scale = desiredWidth / viewport.width; // bereken schaal op basis van canvasbreedte
+    const scaledViewport = page.getViewport({ scale });
+
+    canvas.height = scaledViewport.height;
+    canvas.width = scaledViewport.width;
+
+    const renderContext = {
+      canvasContext: ctx,
+      viewport: scaledViewport
+    };
+    page.render(renderContext);
+  });
+}
+
+}
+
 
     function renderPage(num, canvas, ctx) {
       pdfDoc.getPage(num).then(page => {
@@ -81,19 +93,24 @@
       });
     }
 
-    function nextPages() {
-      if (currentPage + 2 <= pdfDoc.numPages) {
-        currentPage += 2;
-        renderPages();
-      }
-    }
+  function nextPages() {
+  if (currentPage === 1) {
+    currentPage = 2;
+  } else if (currentPage + 2 <= pdfDoc.numPages) {
+    currentPage += 2;
+  }
+  renderPages();
+}
 
-    function prevPages() {
-      if (currentPage - 2 >= 1) {
-        currentPage -= 2;
-        renderPages();
-      }
-    }
+function prevPages() {
+  if (currentPage === 2) {
+    currentPage = 1;
+  } else if (currentPage - 2 >= 1) {
+    currentPage -= 2;
+  }
+  renderPages();
+}
+
   </script>
 </body>
 </html>
